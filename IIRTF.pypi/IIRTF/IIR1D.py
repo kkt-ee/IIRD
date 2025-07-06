@@ -74,6 +74,7 @@ class IIR1D(tf.keras.layers.Layer):
             name="a_coeffs",
             constraint=Positive() ## constraint >0 for STABLE FILTER
         )
+        super().build(input_shape)
        
     # @tf.function(jit_compile=False)  # Disable XLA for debugging
     def call(self, x):

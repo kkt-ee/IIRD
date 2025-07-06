@@ -72,6 +72,7 @@ class IIR2D(tf.keras.layers.Layer):
             name="a_coeffs",
             constraint=Positive() ## constraint >0 for STABLE FILTER
         )
+        super().build(input_shape)
         # ## Setting a0=1 in feedback coeffs
         # a0s = tf.ones((self.channels, 1, self.filters))
         # self.A = tf.concat([a0s, self.a], axis=-2)  # shape: (channels, Delays+1)
