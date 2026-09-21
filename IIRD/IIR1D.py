@@ -20,23 +20,11 @@ class Positive(tf.keras.constraints.Constraint):
 
 @tf.keras.utils.register_keras_serializable()
 class IIR1D(tf.keras.layers.Layer):
-    """IIRTF: Fast trainable multidimensional IIR filter layers in TensorFlow.
-    Copyright (C) 2025 Kishore Kumar Tarafdar
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.   
-    
-    IIR 1D Layer --kkt 24-05-2025"""
+    """ IIR 1D layer
+    IIRD: Fast trainable D-dimensional IIR filter layers in TensorFlow.
+    Copyright 2025 Kishore Kumar Tarafdar.
+    Licensed under the Apache License, Version 2.0. See LICENSE for details.
+    """
     def __init__(self, Delays:int, filters:int, tolerance=1e-8, max_steps=5000, local_lr=0.001, **kwargs):
         super().__init__(**kwargs)
         self.Delays = Delays
@@ -120,7 +108,7 @@ class IIR1D(tf.keras.layers.Layer):
         
         def body(i, y_var, loss):
             with tf.GradientTape() as tape:
-                print(f'{i}', end=', ')
+                # print(f'{i}', end=', ')
                 tape.watch(y_var)
                 loss, _ = compute_residual(y_var)
             # dy = tape.gradient(loss, y_var)
@@ -231,11 +219,24 @@ if __name__=='__main__':
     print(out.numpy())
 
 
-    ##Example 
-    input_shape = (128, 12)
+    ##Example 2
+    N = 1024
+    # filters=2
+    input_shape = (N, channels)
     inputs = tf.keras.Input(shape=input_shape)
-    outputs = IIR1D(Delays=Delays, filters=2)(inputs)
+    outputs = IIR1D(Delays=2, filters=filters)(inputs)
     # outputs = IIRLayer1D(Delays=Delays, filters=128)(outputs)
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    model.compile(optimizer='adam', loss='mse', jit_compile=False)
     model.summary()
-    del input_shape, inputs, outputs, model
+    # del input_shape, inputs, outputs, model
+
+    # Random data
+    ## 1D
+    inputs_data = tf.random.normal((1, N, channels))
+    targets = tf.random.normal((1, N, filters))
+
+    # Training loop for 5 epochs
+    epochs=5
+    # for epoch in range(5):
+    history = model.fit(inputs_data, targets, epochs=5, verbose=1)

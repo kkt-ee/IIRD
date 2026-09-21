@@ -1,20 +1,18 @@
 ## OK general IIR 3D layer
 import tensorflow as tf
+from IIRD.constraints import Positive
 
-@tf.keras.utils.register_keras_serializable()
-class Positive(tf.keras.constraints.Constraint):
-    """Makes sure non negative by clipping -ve values to 0
-    
-    License: GPLv3
-    Copyright (C) Kishore K tarafdar
-    """
-    def __call__(self, w):
-        return tf.maximum(w, 0.0)  # Clip negative values to 0
-        # return tf.nn.relu(w)
-        return w
+# @tf.keras.utils.register_keras_serializable()
+# class Positive(tf.keras.constraints.Constraint):
+#     """Makes sure non negative by clipping -ve values to 0
+#     """
+#     def __call__(self, w):
+#         return tf.maximum(w, 0.0)  # Clip negative values to 0
+#         # return tf.nn.relu(w)
+#         return w
 
-    def get_config(self):
-        return {}  # No parameters to serialize
+#     def get_config(self):
+#         return {}  # No parameters to serialize
 
 # class No(Constraint):
 #     def __call__(self, w):
@@ -24,23 +22,12 @@ class Positive(tf.keras.constraints.Constraint):
 
 @tf.keras.utils.register_keras_serializable()
 class IIR3D(tf.keras.layers.Layer):
-    """IIRTF: Fast trainable multidimensional IIR filter layers in TensorFlow.
-    Copyright (C) 2025 Kishore Kumar Tarafdar
+    """ IIR 3D layer
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    
-    IIR 3D Layer --kkt 24-05-2025"""
+    IIRD: Fast trainable D-dimensional IIR filter layers in TensorFlow.
+    Copyright 2025 Kishore Kumar Tarafdar.
+    Licensed under the Apache License, Version 2.0. See LICENSE for details.
+    """
     def __init__(self, Delays:int, filters:int, tolerance=1e-6, max_steps=5000, local_lr=0.001, **kwargs):
         super().__init__(**kwargs)
         self.Delays = Delays
@@ -112,7 +99,7 @@ class IIR3D(tf.keras.layers.Layer):
             AY = tf.einsum('bnmlcdo,cdo->bnmlo', Yshifted, A)
             
             residual = BX - AY
-            print(BX.shape, AY.shape, residual.shape)
+            # print(BX.shape, AY.shape, residual.shape)
             # loss = tf.reduce_sum(residual) # unstable filters
             # loss = tf.reduce_sum(tf.abs(residual)) #better
             loss = tf.reduce_sum(tf.square(residual)) #better
@@ -131,7 +118,7 @@ class IIR3D(tf.keras.layers.Layer):
         
         def body(i, y_var, loss):
             with tf.GradientTape() as tape:
-                print(f'{i}', end=', ')
+                # print(f'{i}', end=', ')
                 tape.watch(y_var)
                 loss, _ = compute_residual(y_var)
             grads = tape.gradient(loss, [y_var] + self.trainable_variables)
@@ -277,4 +264,3 @@ if __name__=='__main__':
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
     model.summary()
     del N, input_shape, inputs, outputs, model
-

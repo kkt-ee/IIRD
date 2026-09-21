@@ -1,0 +1,23 @@
+# git remote add origin git@github.com:ksatva/attentions.git
+
+/.*
+/!.gitignore
+/updateGit
+
+**/.*
+!**/.gitignore
+**/__pycache__/
+**/.ipynb_checkpoints/
+
+**/.ipynb_checkpoints/
+/MakingAndMaintenenceOfIIRMutltidimensionalLayers.ipynb/.ipynb_checkpoints/
+
+**/*.ckpt/
+
+build/
+dist/
+*.egg-info/
+
+MakingOf...
+scripts*
+viewer
